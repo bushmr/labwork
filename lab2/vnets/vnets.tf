@@ -18,6 +18,14 @@ resource "azurerm_virtual_network" "sp1net" {
   
 }
 
+resource "azurerm_subnet" "sp1sub" {
+  name = "sn-lab2-def-sp1"
+  resource_group_name = azurerm_resource_group.rg1.name
+  virtual_network_name = azurerm_virtual_network.sp1net.name
+  address_prefixes = ["10.100.4.0/27"]
+  
+}
+
 resource "azurerm_virtual_network_peering" "hb-to-sp1" {
   name = "hb-to-sp1"
   resource_group_name = azurerm_resource_group.rg1.name
