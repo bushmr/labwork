@@ -1,0 +1,57 @@
+rg1=rg-er-ha1
+rg2=rg-er-ha2
+region1=southcentralus
+region2=northcentralus
+hub1=vn-hub1
+hub2=vn-hub2
+hub1addr=10.20.0.0/16
+hub2addr=10.30.0.0/16
+defsubnet1=10.20.0.0/24
+defsubnet2=10.30.0.0/24
+spk1addr=10.21.0.0/16
+spk2addr=10.22.0.0/16
+spk3addr=10.31.0.0/16
+spk4addr=10.32.0.0/16
+spk1subnet=10.21.0.0/24
+spk2subnet=10.22.0.0/24
+spk3subnet=10.31.0.0/24
+spk4subnet=10.32.0.0/24
+gwaddr1=10.20.1.0/26
+gwaddr2=10.30.1.0/26
+rsaddr1=10.20.2.0/27
+rsaddr2=10.30.2.0/27
+
+az group create -n $rg1 -l $region1 --output none
+az group create -n $rg2 -l $region2 --output none
+
+az network vnet create --address-prefixes $hub1addr -n $hub1 -g $rg1 -l $region1 --subnet-name default --subnet-prefixes $defsubnet1 --output none
+az network vnet subnet create -g $rg1 --vnet-name $hub1 -n GatewaySubnet --address-prefixes $gwaddr1 --output none
+az network vnet subnet create -g $rg1 --vnet-name $hub1 -n RouteServerSubnet --address-prefixes $rsaddr1 --output none
+az network vnet create --address-prefixes $spk1addr -n vn-labspk1 -g $rg1 -l $region1 --subnet-name default --subnet-prefixes $spk1subnet --output none
+az network vnet create --address-prefixes $spk2addr -n vn-labspk2 -g $rg1 -l $region1 --subnet-name default --subnet-prefixes $spk2subnet --output none
+
+az network vnet peering create -g $rg1 -n labhubTolabspk1 --vnet-name $hub1 --remote-vnet vn-labspk1 --allow-vnet-access --allow-forwarded-traffic --output none
+az network vnet peering create -g $rg1 -n labspke1Tolabhub --vnet-name vn-labspk1 --remote-vnet $hub1 --allow-vnet-access --allow-forwarded-traffic --output none
+
+az network vnet peering create -g $rg1 -n labhubTolabspk2 --vnet-name $hub1 --remote-vnet vn-labspk2 --allow-vnet-access --allow-forwarded-traffic --output none
+az network vnet peering create -g $rg1 -n labspke2Tolabhub --vnet-name vn-labspk2 --remote-vnet $hub1 --allow-vnet-access --allow-forwarded-traffic --output none
+
+az network public-ip create -n pip-vng-lab -g $rg1 --location $region1 --sku Standard --output none
+az network vnet-gateway create -n vng-lab --public-ip-addresses pip-vng-lab -g $rg1 --vnet $hub1 --asn 65510 --gateway-type Vpn -l $region1 --sku VpnGw1 --vpn-gateway-generation Generation1 --no-wait 
+
+#az network vnet create --address-prefixes $hub2addr -n $hub2 -g $rg2 -l $region2 --subnet-name default --subnet-prefixes $defsubnet2 --output none
+#az network vnet subnet create -g $rg2 --vnet-name $hub2 -n GatewaySubnet --address-prefixes $gwaddr2 --output none
+#az network vnet subnet create -g $rg2 --vnet-name $hub2 -n RouteServerSubnet --address-prefixes $rsaddr2 --output none
+
+#az network vnet create --address-prefixes $spk3addr -n vn-labspk3 -g $rg2 -l $region2 --subnet-name default --subnet-prefixes $spk3subnet --output none
+#az network vnet create --address-prefixes $spk4addr -n vn-labspk4 -g $rg2 -l $region2 --subnet-name default --subnet-prefixes $spk4subnet --output none
+
+#az network vnet peering create -g $rg2 -n labhub2Tolabspk3 --vnet-name $hub2 --remote-vnet vn-labspk3 --allow-vnet-access --allow-forwarded-traffic --output none
+#az network vnet peering create -g $rg2 -n labspke3Tolabhub2 --vnet-name vn-labspk3 --remote-vnet $hub2 --allow-vnet-access --allow-forwarded-traffic --output none
+
+#az network vnet peering create -g $rg2 -n labhub2Tolabspk4 --vnet-name $hub2 --remote-vnet vn-labspk4 --allow-vnet-access --allow-forwarded-traffic --output none
+#az network vnet peering create -g $rg2 -n labspke4Tolabhub2 --vnet-name vn-labspk4 --remote-vnet $hub2 --allow-vnet-access --allow-forwarded-traffic --output none
+
+#az network public-ip create -n pip-vng-lab2 -g $rg2 --location $region2 --sku Standard --output none
+#az network vnet-gateway create -n vng-lab2 --public-ip-addresses pip-vng-lab2 -g $rg2 --vnet $hub2 --asn 65511 --gateway-type Vpn -l $region2 --sku VpnGw1 --vpn-gateway-generation Generation1 --no-wait 
+
