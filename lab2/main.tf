@@ -5,6 +5,6 @@ module "vnets" {
 
 module "debian" {
   source = "./debian"
-  prefix = "vm"
+  prefix = "dev"
   subnet_id = module.vnets.sub_id_out
 }
