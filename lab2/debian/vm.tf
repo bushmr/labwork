@@ -1,20 +1,27 @@
-
-
-
 resource "azurerm_resource_group" "rg2" {
   name = "rg-lab2-vm"
   location = "southcentralus"
+}
+
+resource "azurerm_public_ip" "pip1" {
+  name = "${var.prefix}-pip1"
+  resource_group_name = azurerm_resource_group.rg2.name
+  allocation_method = "Static"
+  location = azurerm_resource_group.rg2.location
+  sku = "Standard"
 }
 
 resource "azurerm_network_interface" "nic1" {
   name = "${var.prefix}-nic1"
   resource_group_name = azurerm_resource_group.rg2.name
   location = azurerm_resource_group.rg2.location
+  enable_ip_forwarding = true
   ip_configuration {
     name = "ipconfig-nic1"
     subnet_id = var.subnet_id
     private_ip_address_allocation = "Dynamic"
-  } 
+    public_ip_address_id = azurerm_public_ip.pip1.id
+  }
 }
 
 resource "azurerm_linux_virtual_machine" "vm1" {
@@ -41,6 +48,4 @@ resource "azurerm_linux_virtual_machine" "vm1" {
     version = "latest"
   }
   boot_diagnostics {}
-  
-
 }
