@@ -1,36 +1,39 @@
 resource "azurerm_resource_group" "rg1" {
-  name      = "rg-lab2-nw"
-  location  = "southcentralus"
+  name      = var.resGroup
+  location  = var.region
 }
 
-resource "azurerm_virtual_network" "hbnet" {
-  name                = "vn-lab2-hb"
-  location            = azurerm_resource_group.rg1.location
+
+resource "azurerm_virtual_network" "vnet" {
+  for_each = var.vnets 
+  location = var.region
   resource_group_name = azurerm_resource_group.rg1.name
-  address_space       = ["10.100.0.0/22"] 
-}
-
-resource "azurerm_virtual_network" "sp1net" {
-    name                = "vn-lab2-sp1"
-    location            = azurerm_resource_group.rg1.location
-    resource_group_name = azurerm_resource_group.rg1.name
-    address_space       = ["10.100.4.0/24"]
+  name = each.value["name"]
+  address_space = each.value["address_prefixes"]
   
 }
 
-resource "azurerm_subnet" "sp1sub" {
-  name = "sn-lab2-def-sp1"
+resource "azurerm_subnet" "hbsns" {
+  for_each = var.hbsubnets
+  name = each.value["name"]
   resource_group_name = azurerm_resource_group.rg1.name
-  virtual_network_name = azurerm_virtual_network.sp1net.name
-  address_prefixes = ["10.100.4.0/27"]
-  
+  virtual_network_name = azurerm_virtual_network.vnet["hubvnet"].name
+  address_prefixes = each.value["address_prefixes"]
+}
+
+resource "azurerm_subnet" "spk1sns" {
+  for_each = var.spk1subnets
+  name = each.value["name"]
+  resource_group_name = azurerm_resource_group.rg1.name
+  virtual_network_name = azurerm_virtual_network.vnet["spk1vnet"].name
+  address_prefixes = each.value["address_prefixes"]
 }
 
 resource "azurerm_virtual_network_peering" "hb-to-sp1" {
   name = "hb-to-sp1"
   resource_group_name = azurerm_resource_group.rg1.name
-  virtual_network_name = azurerm_virtual_network.hbnet.name
-  remote_virtual_network_id = azurerm_virtual_network.sp1net.id
+  virtual_network_name = azurerm_virtual_network.vnet["hubvnet"].name
+  remote_virtual_network_id = azurerm_virtual_network.vnet["spk1vnet"].id
   allow_forwarded_traffic = true 
   allow_virtual_network_access = true 
   use_remote_gateways = false 
@@ -39,8 +42,8 @@ resource "azurerm_virtual_network_peering" "hb-to-sp1" {
 resource "azurerm_virtual_network_peering" "sp1-to-hb" {
   name = "sp1-to-hb"
   resource_group_name = azurerm_resource_group.rg1.name
-  virtual_network_name = azurerm_virtual_network.sp1net.name
-  remote_virtual_network_id = azurerm_virtual_network.hbnet.id
+  virtual_network_name = azurerm_virtual_network.vnet["spk1vnet"].name
+  remote_virtual_network_id = azurerm_virtual_network.vnet["hubvnet"].id
   allow_forwarded_traffic = true 
   allow_virtual_network_access = true 
   use_remote_gateways = false 
