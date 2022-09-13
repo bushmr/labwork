@@ -3,14 +3,12 @@ resource "azurerm_resource_group" "rg1" {
   location  = var.region
 }
 
-
 resource "azurerm_virtual_network" "vnet" {
   for_each = var.vnets 
   location = var.region
   resource_group_name = azurerm_resource_group.rg1.name
   name = each.value["name"]
   address_space = each.value["address_prefixes"]
-  
 }
 
 resource "azurerm_subnet" "hbsns" {
@@ -48,5 +46,3 @@ resource "azurerm_virtual_network_peering" "sp1-to-hb" {
   allow_virtual_network_access = true 
   use_remote_gateways = false 
 }
-
-

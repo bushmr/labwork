@@ -20,7 +20,7 @@ provider "azurerm" {
 }
 # provider "azurerm" {
 #     alias           = "SAP_NonProd"
-#     subscription_id = "a86f7777-xxxx-436f-b016-8fa3759b637d"
+#     subscription_id = "aXXXXX7777-xxxx-ffff-b016-8fa375XXXXXX"
 #     features {}
 # }
 
