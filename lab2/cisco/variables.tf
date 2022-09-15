@@ -3,6 +3,11 @@ variable "prefix" {
   description = "naming Prefix"
 }
 
+variable "resGroup" {
+  type = string
+  description = "Azure Resource Group"
+  
+}
 variable "location" {
   type = string
   description = "Azure Region"

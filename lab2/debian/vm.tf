@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "rg2" {
-  name = "rg-lab2-vm"
-  location = "southcentralus"
+  name = var.resGroup
+  location = var.location
 }
 
 resource "azurerm_public_ip" "pip1" {

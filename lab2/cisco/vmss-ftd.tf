@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "rgtst" {
-  name = "rg-vmss-tst"
-  location = "southcentralus"
+  name = var.resGroup
+  location = var.location
 }
 
 resource "azurerm_orchestrated_virtual_machine_scale_set" "vmss" {

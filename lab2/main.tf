@@ -1,8 +1,8 @@
 #call modules
 module "vnets" {
   source = "./vnets"
-  region = "southcentralus"
-  resGroup = "rg-tf-test"
+  region = "westus3"
+  resGroup = "rg-zz-net"
 }
 
 # module "debian" {
@@ -24,7 +24,8 @@ module "lb" {
 module "cisco" {
   source = "./cisco"
   prefix = "ftdv"
-  location = "southcentralus"
+  location = module.vnets.region_out
+  resGroup = module.vnets.resGroup_name_out
   inside = module.vnets.hb1sub_id_out["sub5"]
   outside = module.vnets.hb1sub_id_out["sub4"]
   mgmt = module.vnets.hb1sub_id_out["sub2"]
