@@ -46,6 +46,10 @@ variable "hbsubnets" {
         name = "sn-lab2-fwin-hb1"
         address_prefixes = ["10.100.0.96/27"]
       }
+      "sub6" = {
+        name = "AzureFirewallSubnet"
+        address_prefixes = ["10.100.0.192/26"]
+      }
     }
   
 }
