@@ -6,8 +6,9 @@ param adminName string = 'cadmin'
 param adminPass string
 param vmNamePfx string = 'f5lb'
 param vnet string = 'vnet007'
-param subnet string = 'int'
-
+param subnet0 string = 'int'
+param subnet1 string = 'ext'
+param subnet2 string = 'mgmt'
 
 resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
   location: location
@@ -57,14 +58,14 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
               properties: {
                enableAcceleratedNetworking: true
                deleteOption: 'Delete'
-               
+               primary: true
                ipConfigurations: [
                 {
                   name: 'ipconfig0' 
                   properties: {
                      primary: true
                      subnet: {
-                      id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet}')
+                      id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet0}')
                     }
                     publicIPAddressConfiguration: {
                       name: 'pubIpConfig0'
@@ -79,6 +80,40 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
                 }
               ]
             }
+          }
+          {
+            name: 'nic1'
+            properties: {
+             enableAcceleratedNetworking: false
+             deleteOption: 'Delete'
+             ipConfigurations: [
+              {
+                name: 'ipconfig0' 
+                properties: {
+                    subnet: {
+                    id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet1}')
+                  }
+                 }
+              }
+            ]
+           }
+          }
+          {
+            name: 'nic2'
+            properties: {
+             enableAcceleratedNetworking: false
+             deleteOption: 'Delete'
+             ipConfigurations: [
+              {
+                name: 'ipconfig0' 
+                properties: {
+                    subnet: {
+                    id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet2}')
+                  }
+                 }
+              }
+            ]
+           }
           }
         ]
        }
