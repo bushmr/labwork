@@ -1,6 +1,7 @@
 
 param location string = 'southcentralus'
 param vmssName string = 'vmssf5'
+param vmSize string = 'Standard_B2ms'
 param adminName string = 'cadmin'
 @secure()
 param adminPass string
@@ -16,7 +17,7 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
   
   sku: {
     capacity: 1
-    name: 'Standard_F2s_v2'
+    name: vmSize
   }
   
   plan: {
