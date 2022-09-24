@@ -1,7 +1,7 @@
 
 param location string = 'southcentralus'
 param vmssName string = 'vmssf5'
-param vmSize string = 'Standard_B2ms'
+param vmSize string = 'Standard_D2s_v4'
 param adminName string = 'cadmin'
 @secure()
 param adminPass string
@@ -57,7 +57,7 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
           {
             name: 'nic0'
               properties: {
-               enableAcceleratedNetworking: true
+               enableAcceleratedNetworking: false
                deleteOption: 'Delete'
                primary: true
                ipConfigurations: [
@@ -66,18 +66,9 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
                   properties: {
                      primary: true
                      subnet: {
-                      id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet0}')
+                      id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet2}')
                     }
-                    publicIPAddressConfiguration: {
-                      name: 'pubIpConfig0'
-                      properties: {
-                        deleteOption: 'Delete'
-                      }
-                      sku: {
-                        name: 'Standard'
-                      }
-                    }
-                   }
+                  }
                 }
               ]
             }
@@ -85,7 +76,7 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
           {
             name: 'nic1'
             properties: {
-             enableAcceleratedNetworking: false
+             enableAcceleratedNetworking: true
              deleteOption: 'Delete'
              ipConfigurations: [
               {
@@ -93,8 +84,17 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
                 properties: {
                     subnet: {
                     id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet1}')
-                  }
-                 }
+                    }
+                    publicIPAddressConfiguration:{
+                      name: 'pubIpConfig0'
+                      properties: {
+                      deleteOption: 'Delete'
+                      }
+                      sku: {
+                        name: 'Standard'
+                      }
+                    }  
+                }
               }
             ]
            }
@@ -102,14 +102,14 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
           {
             name: 'nic2'
             properties: {
-             enableAcceleratedNetworking: false
+             enableAcceleratedNetworking: true
              deleteOption: 'Delete'
              ipConfigurations: [
               {
                 name: 'ipconfig0' 
                 properties: {
                     subnet: {
-                    id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet2}')
+                    id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet0}')
                   }
                  }
               }
