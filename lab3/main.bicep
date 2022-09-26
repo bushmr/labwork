@@ -102,7 +102,7 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
           {
             name: 'nic2'
             properties: {
-             enableAcceleratedNetworking: true
+             enableAcceleratedNetworking: false
              deleteOption: 'Delete'
              ipConfigurations: [
               {
