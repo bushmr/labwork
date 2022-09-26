@@ -1,15 +1,12 @@
 
 param location string = 'southcentralus'
 param vmssName string = 'vmssf5'
-param vmSize string = 'Standard_D2s_v4'
 param adminName string = 'cadmin'
 @secure()
 param adminPass string
 param vmNamePfx string = 'f5lb'
 param vnet string = 'vnet007'
-param subnet0 string = 'int'
-param subnet1 string = 'ext'
-param subnet2 string = 'mgmt'
+param subnet string = 'int'
 
 resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
   location: location
@@ -17,7 +14,7 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
   
   sku: {
     capacity: 1
-    name: vmSize
+    name: 'Standard_F2s_v2'
   }
   
   plan: {
@@ -57,64 +54,30 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
           {
             name: 'nic0'
               properties: {
-               enableAcceleratedNetworking: false
+               enableAcceleratedNetworking: true
                deleteOption: 'Delete'
-               primary: true
+               
                ipConfigurations: [
                 {
                   name: 'ipconfig0' 
                   properties: {
                      primary: true
                      subnet: {
-                      id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet2}')
+                      id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet}')
                     }
-                  }
-                }
-              ]
-            }
-          }
-          {
-            name: 'nic1'
-            properties: {
-             enableAcceleratedNetworking: true
-             deleteOption: 'Delete'
-             ipConfigurations: [
-              {
-                name: 'ipconfig0' 
-                properties: {
-                    subnet: {
-                    id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet1}')
-                    }
-                    publicIPAddressConfiguration:{
+                    publicIPAddressConfiguration: {
                       name: 'pubIpConfig0'
                       properties: {
-                      deleteOption: 'Delete'
+                        deleteOption: 'Delete'
                       }
                       sku: {
                         name: 'Standard'
                       }
-                    }  
+                    }
+                   }
                 }
-              }
-            ]
-           }
-          }
-          {
-            name: 'nic2'
-            properties: {
-             enableAcceleratedNetworking: false
-             deleteOption: 'Delete'
-             ipConfigurations: [
-              {
-                name: 'ipconfig0' 
-                properties: {
-                    subnet: {
-                    id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet0}')
-                  }
-                 }
-              }
-            ]
-           }
+              ]
+            }
           }
         ]
        }
