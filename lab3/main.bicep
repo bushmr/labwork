@@ -1,14 +1,46 @@
-param location string = 'southcentralus'
-param vmssName string = 'vmssf5'
-param vmSize string = 'Standard_D2s_v4'
-param adminName string = 'cadmin'
+param location string 
+param lbname string 
+param vmssName string 
+param vmSize string 
+param adminName string 
 @secure()
 param adminPass string
-param vmNamePfx string = 'f5lb'
-param vnet string = 'vnet007'
-param subnet0 string = 'int'
-param subnet1 string = 'ext'
-param subnet2 string = 'mgmt'
+param vmNamePfx string 
+param vnet string 
+param subnet0 string 
+param subnet1 string 
+param subnet2 string 
+
+resource alb 'Microsoft.Network/loadBalancers@2022-01-01' ={
+  name: lbname
+  location: location
+  sku:  {
+     name: 'Standard'
+  }
+  properties: {
+   frontendIPConfigurations: [
+    {
+       name: 'feip-${vmNamePfx}'
+       properties: {
+         privateIPAllocationMethod: 'Dynamic'
+         subnet: {
+         id: resourceId('Microsoft.Network/virtualNetworks/subnets', '${vnet}', '${subnet1}')
+         }
+        }
+    }
+   ]
+   backendAddressPools: [
+    {
+       name: 'beap-${vmNamePfx}'
+       properties: {
+         
+       }
+    }
+   ]
+    
+   }
+
+}
 
 resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
   location: location
@@ -24,7 +56,7 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
     publisher: 'f5-networks'
     product: 'f5-big-ip-byol'
   }
-  zones: [ '1', '2', '3' ]
+  zones: [ '3']
   
   properties: {
     orchestrationMode: 'Flexible'
@@ -79,7 +111,7 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
              deleteOption: 'Delete'
              ipConfigurations: [
               {
-                name: 'ipconfig0' 
+                name: 'ipconfig1' 
                 properties: {
                     subnet: {
                     id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet1}')
@@ -101,11 +133,11 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
           {
             name: 'nic2'
             properties: {
-             enableAcceleratedNetworking: true
+             enableAcceleratedNetworking: false
              deleteOption: 'Delete'
              ipConfigurations: [
               {
-                name: 'ipconfig0' 
+                name: 'ipconfig2' 
                 properties: {
                     subnet: {
                     id: resourceId('Microsoft.Network/virtualNetworks/subnets','${vnet}', '${subnet0}')

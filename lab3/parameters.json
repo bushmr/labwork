@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "southcentralus"
+        },
+        "lbname": {
+            "value": "lb-f5-prod-sc-01"
+        },
+        "vmssName": {
+            "value": "vmss-f5-pvazsflb"
+        },
+        "vmSize": {
+            "value": "Standard_D8s_v4"
+        },
+        "adminName": {
+            "value": "nixadm"
+        },
+        "adminPass": {
+            "value": ""
+        },
+        "vmNamePfx": {
+            "value": "pvazsflb"
+        },
+        "vnet": {
+            "value": "vn-nwhub-eus2-prod-001"
+        },
+        "subnet0": {
+            "value": "sn-f5-mgmt-eus2-10-152-0-160"
+        },
+        "subnet1": {
+            "value": "sn-f5-external-eus2-10-152-0-128"
+        },
+        "subnet2": {
+            "value": "sn-f5-internal-eus2-10-152-0-144"
+        }
+
+    }
+}

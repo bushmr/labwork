@@ -3,3 +3,4 @@ terraform.tfstate*
 lab2/.terraform/
 lab2/.terraform.lock*
 .terraform.*
+params-local.json
