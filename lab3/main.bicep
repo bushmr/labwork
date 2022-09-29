@@ -66,13 +66,14 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
         adminUsername: adminName
         adminPassword: adminPass
         computerNamePrefix: vmNamePfx
+          
       }
       storageProfile: {
         osDisk: {
           createOption: 'FromImage'
           caching: 'ReadWrite'
           managedDisk: {
-            storageAccountType: 'Standard_LRS'
+            storageAccountType: 'StandardSSD_LRS'
           }
         }
         imageReference: {
