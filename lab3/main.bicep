@@ -66,7 +66,6 @@ resource scaleSet 'Microsoft.Compute/virtualMachineScaleSets@2022-03-01' = {
         adminUsername: adminName
         adminPassword: adminPass
         computerNamePrefix: vmNamePfx
-          
       }
       storageProfile: {
         osDisk: {

@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vNetName": {
+            "value": "vnet006"
+            
+        },
+        "fwPolName": {
+            "value": "azfwpol-mrb-prod-001"
+           
+        },
+        "fwName": {
+            "value": "azfw-mrb-prod-002"
+            
+        },
+        "fwPip": {
+            "value": "pip-azfw-mrb-prod-001"
+            
+        }
+    }
+}
