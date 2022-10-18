@@ -18,12 +18,12 @@ az network public-ip create -g rg-lab -n pip-tlsnva01 --sku Standard
 az network public-ip create -g rg-lab -n pip-azfw --sku Standard
 az network public-ip create -g rg-lab -n pip-mazfw --sku Standard 
 
-az network nic create -g rg-lab -n tlsnva01-nic1 --vnet-name vnhub01 --subnet default --public-ip-address pip-tlsnva01 --ip-forwarding true
-az network nic create -g rg-lab -n tlsnva01-nic2 --vnet-name vnhub01 --subnet default --ip-forwarding true
+az network nic create -g rg-lab -n tlsnva01-nic1 --vnet-name vnhub01 --subnet outside --public-ip-address pip-tlsnva01 --ip-forwarding true
+az network nic create -g rg-lab -n tlsnva01-nic2 --vnet-name vnhub01 --subnet inside --ip-forwarding true
 
 az network nsg create -g rg-lab -n nsg-default
 az network nsg rule create -g rg-lab -n AllowTrusted --nsg-name nsg-default --priority 1000 --direction Inbound --destination-address-prefixes '*' --destination-port-ranges '*' --source-address-prefixes 162.198.97.51 --source-port-ranges '*' --access Allow --protocol '*' 
-az network vnet subnet update -g rg-lab --network-security-group nsg-default --vnet-name vnhub01 --name default
+az network vnet subnet update -g rg-lab --network-security-group nsg-default --vnet-name vnhub01 --name outside
 az network vnet subnet update -g rg-lab --network-security-group nsg-default --vnet-name vnsp01 --name default
 az network vnet subnet update -g rg-lab --network-security-group nsg-default --vnet-name vnsp02 --name default
 
