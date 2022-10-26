@@ -1,51 +1,60 @@
-az group create -n rg-lab -l southcentralus
-az network vnet create -g rg-lab -n vnhub01 --address-prefix 10.1.0.0/16 --subnet-name GatewaySubnet --subnet-prefixes 10.1.0.0/27
-az network vnet create -g rg-lab -n vnsp01 --address-prefixes 10.11.0.0/16 --subnet-name default --subnet-prefixes 10.11.0.0/24
-az network vnet create -g rg-lab -n vnsp02 --address-prefixes 10.22.0.0/16 --subnet-name default --subnet-prefixes 10.22.0.0/24
+#
+RG=AA-lab
+myip=$(curl -4 ifconfig.io -s)
+az group create -n $RG -l southcentralus
+echo "Creating vnets..."
+az network vnet create -g $RG -n vnhub01 --address-prefix 10.1.0.0/16 --subnet-name GatewaySubnet --subnet-prefixes 10.1.0.0/27
+az network vnet create -g $RG -n vnsp01 --address-prefixes 10.11.0.0/16 --subnet-name default --subnet-prefixes 10.11.0.0/24
+az network vnet create -g $RG -n vnsp02 --address-prefixes 10.22.0.0/16 --subnet-name default --subnet-prefixes 10.22.0.0/24
 
-az network vnet subnet create -g rg-lab -n AzureFirewallSubnet --address-prefixes 10.1.0.64/26 --vnet-name vnhub01 
-az network vnet subnet create -g rg-lab -n inside --address-prefixes 10.1.0.128/26 --vnet-name vnhub01
-az network vnet subnet create -g rg-lab -n AzureFirewallManagementSubnet --address-prefixes 10.1.0.192/26 --vnet-name vnhub01 
-az network vnet subnet create -g rg-lab -n outside --address-prefixes 10.1.1.0/26 --vnet-name vnhub01
+az network vnet subnet create -g $RG -n AzureFirewallSubnet --address-prefixes 10.1.0.64/26 --vnet-name vnhub01 
+az network vnet subnet create -g $RG -n inside --address-prefixes 10.1.0.128/26 --vnet-name vnhub01
+az network vnet subnet create -g $RG -n AzureFirewallManagementSubnet --address-prefixes 10.1.0.192/26 --vnet-name vnhub01 
+az network vnet subnet create -g $RG -n outside --address-prefixes 10.1.1.0/26 --vnet-name vnhub01
  
 
-az network vnet peering create -g rg-lab -n vnhub-to-vnsp01 --vnet-name vnhub01 --remote-vnet vnsp01 --allow-vnet-access --allow-forwarded-traffic
-az network vnet peering create -g rg-lab -n vnhub-to-vnsp02 --vnet-name vnhub01 --remote-vnet vnsp02 --allow-vnet-access --allow-forwarded-traffic
-az network vnet peering create -g rg-lab -n vnsp01-to-vnhub01 --vnet-name vnsp01 --remote-vnet vnhub01 --allow-vnet-access --allow-forwarded-traffic
-az network vnet peering create -g rg-lab -n vnsp02-to-vnhub01 --vnet-name vnsp02 --remote-vnet vnhub01 --allow-vnet-access --allow-forwarded-traffic
+echo "Creating peering..."
+az network vnet peering create -g $RG -n vnhub-to-vnsp01 --vnet-name vnhub01 --remote-vnet vnsp01 --allow-vnet-access --allow-forwarded-traffic
+az network vnet peering create -g $RG -n vnhub-to-vnsp02 --vnet-name vnhub01 --remote-vnet vnsp02 --allow-vnet-access --allow-forwarded-traffic
+az network vnet peering create -g $RG -n vnsp01-to-vnhub01 --vnet-name vnsp01 --remote-vnet vnhub01 --allow-vnet-access --allow-forwarded-traffic
+az network vnet peering create -g $RG -n vnsp02-to-vnhub01 --vnet-name vnsp02 --remote-vnet vnhub01 --allow-vnet-access --allow-forwarded-traffic
 
-az network public-ip create -g rg-lab -n pip-tlsnva01 --sku Standard
-az network public-ip create -g rg-lab -n pip-azfw --sku Standard
-az network public-ip create -g rg-lab -n pip-mazfw --sku Standard 
+az network public-ip create -g $RG -n pip-tlsnva01 --sku Standard
+az network public-ip create -g $RG -n pip-azfw --sku Standard
+az network public-ip create -g $RG -n pip-mazfw --sku Standard 
 
-az network nic create -g rg-lab -n tlsnva01-nic1 --vnet-name vnhub01 --subnet outside --public-ip-address pip-tlsnva01 --ip-forwarding true
-az network nic create -g rg-lab -n tlsnva01-nic2 --vnet-name vnhub01 --subnet inside --ip-forwarding true
+az network nic create -g $RG -n tlsnva01-nic1 --vnet-name vnhub01 --subnet outside --public-ip-address pip-tlsnva01 --ip-forwarding true
+az network nic create -g $RG -n tlsnva01-nic2 --vnet-name vnhub01 --subnet inside --ip-forwarding true
 
-az network nsg create -g rg-lab -n nsg-default
-az network nsg rule create -g rg-lab -n AllowTrusted --nsg-name nsg-default --priority 1000 --direction Inbound --destination-address-prefixes '*' --destination-port-ranges '*' --source-address-prefixes 162.198.97.51 --source-port-ranges '*' --access Allow --protocol '*' 
-az network vnet subnet update -g rg-lab --network-security-group nsg-default --vnet-name vnhub01 --name outside
-az network vnet subnet update -g rg-lab --network-security-group nsg-default --vnet-name vnsp01 --name default
-az network vnet subnet update -g rg-lab --network-security-group nsg-default --vnet-name vnsp02 --name default
+az network nsg create -g $RG -n nsg-default
+az network nsg rule create -g $RG -n AllowTrusted --nsg-name nsg-default --priority 1000 --direction Inbound --destination-address-prefixes '*' --destination-port-ranges '*' --source-address-prefixes $myip --source-port-ranges '*' --access Allow --protocol '*' 
+az network vnet subnet update -g $RG --network-security-group nsg-default --vnet-name vnhub01 --name outside
+az network vnet subnet update -g $RG --network-security-group nsg-default --vnet-name vnsp01 --name default
+az network vnet subnet update -g $RG --network-security-group nsg-default --vnet-name vnsp02 --name default
 
-az vm create -g rg-lab -n tlsnva01 --image Debian --admin-username cadmin --ssh-key-values ~/.ssh/id_rsa.pub --size "Standard_B1ls" --storage-sku "StandardSSD_LRS" --assign-identity '[system]' --nsg "" --public-ip-sku Standard --nics tlsnva01-nic1 tlsnva01-nic2
-az vm create -g rg-lab -n twsjb01 --image Win2019Datacenter --admin-username cadmin --admin-password "" --size "Standard_B2ms" --vnet-name vnsp01 --subnet default --storage-sku "StandardSSD_LRS" --assign-identity '[system]' --public-ip-sku Standard --public-ip-address "" --nsg "" 
-az vm create -g rg-lab -n twsjb02 --image Win2019Datacenter --admin-username cadmin --admin-password "" --size "Standard_B2ms" --vnet-name vnsp02 --subnet default --storage-sku "StandardSSD_LRS" --assign-identity '[system]' --public-ip-sku Standard --public-ip-address "" --nsg "" 
+echo "Creating vms..."
+az vm create -g $RG -n tlsnva01 --image Debian --admin-username cadmin --ssh-key-values ~/.ssh/id_rsa.pub --size "Standard_B1ls" --storage-sku "StandardSSD_LRS" --assign-identity '[system]' --nsg "" --public-ip-sku Standard --nics tlsnva01-nic1 tlsnva01-nic2
+az vm create -g $RG -n twsjb01 --image Win2019Datacenter --admin-username cadmin --admin-password "" --size "Standard_B2ms" --vnet-name vnsp01 --subnet default --storage-sku "StandardSSD_LRS" --assign-identity '[system]' --public-ip-sku Standard --public-ip-address "" --nsg "" 
+az vm create -g $RG -n twsjb02 --image Win2019Datacenter --admin-username cadmin --admin-password "" --size "Standard_B2ms" --vnet-name vnsp02 --subnet default --storage-sku "StandardSSD_LRS" --assign-identity '[system]' --public-ip-sku Standard --public-ip-address "" --nsg "" 
 
-az network firewall policy create -g rg-lab -n azfwpollab01 --sku Premium 
-az network firewall create -g rg-lab -n azfwlab01 --sku AZFW_VNet --tier Premium --policy azfwpollab01  --location southcentralus
-az network firewall ip-config create -g rg-lab -f azfwlab01 -n fwipconfig --vnet-name vnhub01 --public-ip-address pip-azfw --m-name mipconfig --m-public-ip-address pip-mazfw --m-vnet-name vnhub01
+echo "Creating firewall..."
+az network firewall policy create -g $RG -n azfwpollab01 --sku Basic
+az network firewall create -g $RG -n azfwlab01 --vnet-name vnhub01 --sku AZFW_VNet --tier Basic --conf-name fwipconf --public-ip pip-azfw --policy azfwpollab01  --location southcentralus --m-conf-name mfwipconf --m-public-ip pip-mazfw 
+#az network firewall ip-config create -g $RG -f azfwlab01 -n fwipconf --vnet-name vnhub01 --public-ip-address pip-azfw --m-name mipconfig --m-public-ip-address pip-mazfw --m-vnet-name vnhub01
 
-az network route-table create -g rg-lab -n rtlab01 
-az network route-table route create -g rg-lab -n rn-spk-001 --address-prefix 10.22.0.0/16  --next-hop-type VirtualAppliance --next-hop-ip-address 10.1.0.132 --route-table-name rtlab01
-az network vnet subnet update -g rg-lab -n default --vnet-name vnsp01 --route-table rtlab01 
 
-az network route-table create -g rg-lab -n rtlab02
-az network route-table route create -g rg-lab -n rn-spk-002 --address-prefix 10.11.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.1.0.68 --route-table-name rtlab02
-az network vnet subnet update -g rg-lab -n default --vnet-name vnsp02 --route-table rtlab02 
+az network route-table create -g $RG -n rtlab01 
+az network route-table route create -g $RG -n rn-spk-001 --address-prefix 10.22.0.0/16  --next-hop-type VirtualAppliance --next-hop-ip-address 10.1.0.132 --route-table-name rtlab01
+az network vnet subnet update -g $RG -n default --vnet-name vnsp01 --route-table rtlab01 
 
-az vm run-command create -g rg-lab --vm-name twsjb01 --name cmd1 --script "netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol='icmpv4:8,any' dir=in action=allow" 
-az vm run-command create -g rg-lab --vm-name twsjb02 --name cmd1 --script "netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol='icmpv4:8,any' dir=in action=allow" 
+az network route-table create -g $RG -n rtlab02
+az network route-table route create -g $RG -n rn-spk-002 --address-prefix 10.11.0.0/16 --next-hop-type VirtualAppliance --next-hop-ip-address 10.1.0.68 --route-table-name rtlab02
+az network vnet subnet update -g $RG -n default --vnet-name vnsp02 --route-table rtlab02 
 
-az vm run-command create -g rg-lab --vm-name twsjb01 --name cmd2 --script @winssh.ps1
-az vm run-command create -g rg-lab --vm-name twsjb02 --name cmd2 --script @winssh.ps1
+echo "Running commands on vms..."
+az vm run-command create -g $RG --vm-name twsjb01 --name cmd1 --script "netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol='icmpv4:8,any' dir=in action=allow" 
+az vm run-command create -g $RG --vm-name twsjb02 --name cmd1 --script "netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol='icmpv4:8,any' dir=in action=allow" 
+
+az vm run-command create -g $RG --vm-name twsjb01 --name cmd2 --script @winssh.ps1
+az vm run-command create -g $RG --vm-name twsjb02 --name cmd2 --script @winssh.ps1
 
